@@ -4,7 +4,7 @@ import appConfig from "@constants/appConfig";
 import { HttpStatus } from "@enums/http-status.enum";
 
 const api = axios.create({
-  baseURL: appConfig.apiEndpoint,
+  baseURL: `${appConfig.apiEndpoint}/api/v1`,
 });
 
 api.interceptors.response.use(
