@@ -3,7 +3,10 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  createdAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+export interface UserAuthenticateResponse extends User {
   accessToken?: string;
 }
 
