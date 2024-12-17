@@ -1,19 +1,31 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
-import { AuthProvider } from "@contexts/useAuthContext";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import SignIn from "@pages/SignInPage/SignInPage";
 import SignUp from "@pages/SignUpPage/SignUpPage";
 import UploadPage from "@pages/UploadPage/UploadPage";
 import NotFoundPage from "@pages/NotFoundPage/NotFoundPage";
+import MainLayout from "@components/Layout/MainLayout";
 import AuthGuard from "./guard/auth.guard";
 
 export const appRouter = createBrowserRouter([
   {
-    path: "/",
+    path: "/signin",
     element: (
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <AuthGuard>
+        <SignIn />
+      </AuthGuard>
     ),
+  },
+  {
+    path: "/signup",
+    element: (
+      <AuthGuard>
+        <SignUp />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: "/",
+    element: <MainLayout />,
     children: [
       {
         path: "/",
@@ -28,18 +40,10 @@ export const appRouter = createBrowserRouter([
         ),
       },
       {
-        path: "/signin",
+        path: "/history",
         element: (
-          <AuthGuard>
-            <SignIn />
-          </AuthGuard>
-        ),
-      },
-      {
-        path: "/signup",
-        element: (
-          <AuthGuard>
-            <SignUp />
+          <AuthGuard required>
+            <div>History Page</div>
           </AuthGuard>
         ),
       },

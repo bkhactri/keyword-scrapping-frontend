@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { TextField } from "@mui/material";
 
-const SearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+interface SearchBarProps {
+  searchTerm: string;
+  handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
-
+const SearchBar = ({ searchTerm, handleSearch }: SearchBarProps) => {
   return (
     <TextField
       label="Search keyword"
