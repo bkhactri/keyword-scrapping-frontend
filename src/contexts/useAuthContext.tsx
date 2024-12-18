@@ -25,7 +25,7 @@ interface AuthContextType {
     payload: UserSignUpPayload,
     navigate: NavigateFunction
   ) => Promise<void>;
-
+  logout: (navigate: NavigateFunction) => void;
   isLoading: boolean;
   error: string | null;
 }
@@ -34,6 +34,7 @@ const AuthContext = createContext<AuthContextType>({
   accessToken: null,
   login: async () => {},
   signup: async () => {},
+  logout: () => {},
   isLoading: false,
   error: null,
 });
@@ -105,15 +106,22 @@ export const AuthProvider = ({ children }) => {
     [setIsLoggedIn, setUser]
   );
 
+  const logout = useCallback((navigate: NavigateFunction) => {
+    window.localStorage.removeItem("scrapping-user-token");
+    setAccessToken(null);
+    navigate("/signin");
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       accessToken,
       login,
       signup,
+      logout,
       isLoading,
       error: requestError,
     }),
-    [accessToken, login, signup, isLoading, requestError]
+    [accessToken, login, signup, logout, isLoading, requestError]
   );
 
   return (

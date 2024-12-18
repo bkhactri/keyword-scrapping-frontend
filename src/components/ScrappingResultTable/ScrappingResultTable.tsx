@@ -49,7 +49,8 @@ const columns: ScrappingColumnData[] = [
 export default function ResultTable({ searchKeyword }: ResultTableProps) {
   const [isOpenDetailModal, setOpenDetailModal] = useState<boolean>(false);
   const [selectedKeywordId, setSelectedKeywordId] = useState<number>();
-  const { socket } = useScrapping();
+  const { socket, processingKeywords, setProcessingKeywords, setIsScrapping } =
+    useScrapping();
   const [rows, setRows] = useState<Keyword[]>([]);
   const location = useLocation();
   const { user } = useGlobalState();
@@ -153,19 +154,23 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
     });
 
     socket?.on("keyword-processed", (data: Keyword) => {
-      toast.success(
-        <>
-          Processed keyword <strong>{data.keyword}</strong>
-        </>,
-        { delay: 1000 }
-      );
+      const remainKeywords = processingKeywords.filter((keyword) => {
+        return keyword !== data.keyword;
+      });
 
+      if (!remainKeywords.length) {
+        setIsScrapping(false);
+        toast.success("Completed processing all keywords");
+      }
+
+      setProcessingKeywords(remainKeywords);
       setRows((prevRows) => [data, ...prevRows]);
     });
 
     return () => {
       socket?.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, socket, user.id]);
 
   return (
