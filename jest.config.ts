@@ -20,6 +20,7 @@ export default (): Config => ({
     "@interfaces/(.*)": "<rootDir>/src/interfaces/$1",
     "@config/(.*)": "<rootDir>/src/config/$1",
     "@store/(.*)": "<rootDir>/src/store/$1",
+    "@helpers/(.*)": "<rootDir>/src/helpers/$1",
   },
   globals: {
     TextDecoder,

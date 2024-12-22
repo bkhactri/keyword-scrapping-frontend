@@ -10,7 +10,7 @@ Google keyword scrapping frontend
 npm ci
 ```
 
-2. Create `.env` file in root directory based on `.env.example`
+2. Update variable `VITE_API_URL` in `.env.development` with your API URL (default: http://localhost:4000).
 
 3. Run the service for development
 

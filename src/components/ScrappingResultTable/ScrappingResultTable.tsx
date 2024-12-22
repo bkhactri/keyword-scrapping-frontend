@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import get from "lodash/get";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
@@ -12,16 +13,15 @@ import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
 import KeywordDetailModal from "@components/KeywordDetailModal/KeywordDetailModal";
 import { useScrapping } from "@contexts/useScrappingContext";
 import { socketIO } from "@config/socket";
+import {
+  ScrappingColumnData,
+  ScrappingTableDataKey,
+} from "@interfaces/table.interface";
+import { timeDiffInSecondsAndMinutes } from "@helpers/time.helper";
 import VirtuosoTable from "./VirtuosoTable";
 
 interface ResultTableProps {
   searchKeyword: string;
-}
-
-interface ScrappingColumnData {
-  dataKey: keyof Keyword;
-  label: string;
-  width?: number;
 }
 
 const columns: ScrappingColumnData[] = [
@@ -37,13 +37,18 @@ const columns: ScrappingColumnData[] = [
   },
   {
     width: 50,
-    label: "Created at",
-    dataKey: "createdAt",
+    label: "Total links",
+    dataKey: "searchResult.totalLinks",
   },
   {
     width: 50,
-    label: "Last processed at",
-    dataKey: "updatedAt",
+    label: "Total Ads",
+    dataKey: "searchResult.totalAds",
+  },
+  {
+    width: 50,
+    label: "Processed in",
+    dataKey: "processedIn",
   },
 ];
 
@@ -56,22 +61,23 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
   const location = useLocation();
   const { user } = useGlobalState();
 
-  const getRowContentFormat = (row: Keyword, dataKey: keyof Keyword) => {
+  const getRowContentFormat = (
+    row: Keyword,
+    dataKey: ScrappingTableDataKey
+  ) => {
+    const value = get(row, dataKey as string);
+
     switch (dataKey) {
       case "status":
         return (
-          <Typography
-            className="capitalize"
-            color={keywordStatusColor[row[dataKey as string]]}
-          >
-            &#x2022; {row[dataKey as string]}
+          <Typography className="capitalize" color={keywordStatusColor[value]}>
+            &#x2022; {value}
           </Typography>
         );
-      case "createdAt":
-      case "updatedAt":
-        return <>{new Date(row[dataKey as string]).toLocaleString()}</>;
+      case "processedIn":
+        return <>{timeDiffInSecondsAndMinutes(row.createdAt, row.updatedAt)}</>;
       default:
-        return row[dataKey as string];
+        return value;
     }
   };
 

@@ -21,6 +21,7 @@ export default defineConfig({
       "@interfaces/*": path.resolve(__dirname, "./src/interfaces/*"),
       "@config/*": path.resolve(__dirname, "./src/config/*"),
       "@store/*": path.resolve(__dirname, "./src/store/*"),
+      "@helpers/*": path.resolve(__dirname, "./src/helpers/*"),
     },
   },
   optimizeDeps: {
