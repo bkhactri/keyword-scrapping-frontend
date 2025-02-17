@@ -1,24 +1,15 @@
-import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { appRouter } from "@routes/router";
-import { useGlobalState } from "@store/global-state/useGlobalState";
-import { User } from "@interfaces/user.interface";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
-  const { setUser, setIsLoggedIn } = useGlobalState();
-
-  useEffect(() => {
-    const item = window.localStorage.getItem("scrapping-user-info");
-    if (item) {
-      const userInfo = JSON.parse(item) as User;
-      if (userInfo) {
-        setUser(userInfo);
-        setIsLoggedIn(!!userInfo.accessToken);
-      }
-    }
-  }, [setIsLoggedIn, setUser]);
-
-  return <RouterProvider router={appRouter} />;
+  return (
+    <>
+      <RouterProvider router={appRouter} />
+      <ToastContainer />
+    </>
+  );
 };
 
 export default App;

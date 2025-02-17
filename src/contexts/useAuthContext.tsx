@@ -7,7 +7,7 @@ import {
 } from "react";
 import { NavigateFunction } from "react-router-dom";
 import {
-  User,
+  UserAuthenticateResponse,
   UserSignInPayload,
   UserSignUpPayload,
 } from "@interfaces/user.interface";
@@ -25,6 +25,7 @@ interface AuthContextType {
     payload: UserSignUpPayload,
     navigate: NavigateFunction
   ) => Promise<void>;
+
   isLoading: boolean;
   error: string | null;
 }
@@ -49,7 +50,10 @@ export const AuthProvider = ({ children }) => {
       setRequestError(null);
 
       try {
-        const response = await api.post<User>("/signup", payload);
+        const response = await api.post<UserAuthenticateResponse>(
+          "/signup",
+          payload
+        );
 
         if (response.status === HttpStatus.Created) {
           navigate("/signin");
@@ -71,7 +75,10 @@ export const AuthProvider = ({ children }) => {
       setRequestError(null);
 
       try {
-        const response = await api.post<User>("/login", payload);
+        const response = await api.post<UserAuthenticateResponse>(
+          "/login",
+          payload
+        );
 
         if (response.status === HttpStatus.Ok) {
           const userInfo = response.data;
@@ -80,8 +87,8 @@ export const AuthProvider = ({ children }) => {
           setUser(userInfo);
           setIsLoggedIn(!!userInfo.accessToken);
           window.localStorage.setItem(
-            "scrapping-user-info",
-            JSON.stringify(userInfo)
+            "scrapping-user-token",
+            userInfo.accessToken
           );
           navigate("/");
         }
