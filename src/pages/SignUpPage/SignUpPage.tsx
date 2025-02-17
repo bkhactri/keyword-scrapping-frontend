@@ -138,9 +138,7 @@ export default function SignUp() {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{
-            zIndex: 1,
-          }}
+          className="z-1 bg-orange-500"
         >
           {isLoading ? (
             <CircularProgress size={24} color="secondary" sx={{ zIndex: 0 }} />
@@ -154,7 +152,10 @@ export default function SignUp() {
       </Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Typography sx={{ textAlign: "center" }}>
-          Already have an account? <Link to="/signin">Sign in</Link>
+          Already have an account?{" "}
+          <Link className="underline text-orange-400" to="/signin">
+            Sign in
+          </Link>
         </Typography>
       </Box>
     </AuthenticateLayout>

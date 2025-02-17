@@ -111,9 +111,7 @@ export default function SignIn() {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{
-            zIndex: 1,
-          }}
+          className="z-1 bg-orange-500"
         >
           {isLoading ? (
             <CircularProgress size={24} color="secondary" sx={{ zIndex: 0 }} />
@@ -125,7 +123,10 @@ export default function SignIn() {
       <Divider>or</Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Typography sx={{ textAlign: "center" }}>
-          Don&apos;t have an account? <Link to="/signup">Sign up</Link>
+          Don&apos;t have an account?{" "}
+          <Link className="underline text-orange-400" to="/signup">
+            Sign up
+          </Link>
         </Typography>
       </Box>
     </AuthenticateLayout>
