@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import api from "@config/axios-request";
 import { useGlobalState } from "@store/global-state/useGlobalState";
@@ -11,8 +11,7 @@ interface Props {
 }
 
 function AuthGuard({ children, required = false }: Props) {
-  const [isAuth, setIsAuth] = useState<boolean>(false);
-  const { setIsLoggedIn, setUser } = useGlobalState();
+  const { isLoggedIn, setIsLoggedIn, setUser } = useGlobalState();
   const location = useLocation();
 
   useEffect(() => {
@@ -27,13 +26,11 @@ function AuthGuard({ children, required = false }: Props) {
         const userInfo = response.data;
 
         if (userInfo) {
-          setIsAuth(true);
           setIsLoggedIn(true);
           setUser(userInfo);
         }
       } catch (error) {
         window.localStorage.removeItem("scrapping-user-token");
-        setIsAuth(false);
         setIsLoggedIn(false);
         setUser(null);
 
@@ -43,14 +40,16 @@ function AuthGuard({ children, required = false }: Props) {
       }
     };
 
-    fetchUserInfo();
+    if (location.pathname !== "/signin" && location.pathname !== "/signup") {
+      fetchUserInfo();
+    }
   }, [location.pathname, setIsLoggedIn, setUser]);
 
-  if (required && !isAuth) {
+  if (required && !isLoggedIn) {
     return <Navigate to="/signin" />;
   }
 
-  if (!required && isAuth) {
+  if (!required && isLoggedIn) {
     return <Navigate to="/upload" />;
   }
 

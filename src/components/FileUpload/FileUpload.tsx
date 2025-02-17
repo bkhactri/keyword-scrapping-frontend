@@ -1,8 +1,67 @@
-import React from "react";
+import React, { ChangeEvent, useCallback, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Input from "@mui/material/Input";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import FilePresentIcon from "@mui/icons-material/FilePresent";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { useAuth } from "@contexts/useAuthContext";
+import api from "@config/axios-request";
+import { toast } from "react-toastify";
 
 export default function FileUpload() {
+  const { accessToken } = useAuth();
+  const [selectedFile, setSelectedFile] = useState<File>(null);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+
+  const handleFileChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      if (
+        (event.target as HTMLInputElement).files &&
+        (event.target as HTMLInputElement).files.length
+      ) {
+        const [file] = (event.target as HTMLInputElement).files;
+        setSelectedFile(file);
+      }
+    },
+    []
+  );
+
+  const handleRemoveSelectedFile = () => {
+    setSelectedFile(null);
+  };
+
+  const handleProcessSelectedFile = async () => {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await api.post<{ keywords: string[] }>(
+        "/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const pendingKeywords = response.data.keywords;
+
+      if (pendingKeywords.length) {
+        toast.info(`Processing ${pendingKeywords.length} keyword(s)`);
+      }
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Processing failed! Please try again"
+      );
+    }
+  };
+
   return (
     <>
       <Box className="flex items-start justify-between px-6 pt-6 pb-4">
@@ -29,7 +88,7 @@ export default function FileUpload() {
           Upload a file to scrap Google search results
         </p>
         <p className="text-gray-500">Attach the file below</p>
-        <span className="text-sm italic text-gray-500">
+        <span className="text-sm italic text-gray-500 mt-1">
           To prepare your CSV file
           <ul style={{ listStyleType: "circle", paddingLeft: "20px" }}>
             <li>Create new column named &quot;Keyword&quot;</li>
@@ -39,43 +98,75 @@ export default function FileUpload() {
             </li>
           </ul>
         </span>
-        <Button
-          type="button"
-          className="normal-case mt-5 bg-transparent p-12 w-full flex flex-col items-center border-dashed border-gray-400 border hover:border-solid hover:border-gray-500 focus:border-gray-500"
-        >
-          <span className="w-9 h-9 text-orange-600">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="35"
-              height="35"
-              viewBox="0 0 340.531 419.116"
+
+        <Box className="z-1 flex flex-col items-center justify-center mt-2 h-60 border-dashed border-gray-400 border hover:border-solid hover:border-gray-500 focus:border-gray-500">
+          {selectedFile ? (
+            <Box
+              className="relative"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
-              <path
-                d="M-2904.708-8.885A39.292,39.292,0,0,1-2944-48.177V-388.708A39.292,39.292,0,0,1-2904.708-428h209.558a13.1,13.1,0,0,1,9.3,3.8l78.584,78.584a13.1,13.1,0,0,1,3.8,9.3V-48.177a39.292,39.292,0,0,1-39.292,39.292Zm-13.1-379.823V-48.177a13.1,13.1,0,0,0,13.1,13.1h261.947a13.1,13.1,0,0,0,13.1-13.1V-323.221h-52.39a26.2,26.2,0,0,1-26.194-26.195v-52.39h-196.46A13.1,13.1,0,0,0-2917.805-388.708Zm146.5,241.621a14.269,14.269,0,0,1-7.883-12.758v-19.113h-68.841c-7.869,0-7.87-47.619,0-47.619h68.842v-18.8a14.271,14.271,0,0,1,7.882-12.758,14.239,14.239,0,0,1,14.925,1.354l57.019,42.764c.242.185.328.485.555.671a13.9,13.9,0,0,1,2.751,3.292,14.57,14.57,0,0,1,.984,1.454,14.114,14.114,0,0,1,1.411,5.987,14.006,14.006,0,0,1-1.411,5.973,14.653,14.653,0,0,1-.984,1.468,13.9,13.9,0,0,1-2.751,3.293c-.228.2-.313.485-.555.671l-57.019,42.764a14.26,14.26,0,0,1-8.558,2.847A14.326,14.326,0,0,1-2771.3-147.087Z"
-                transform="translate(2944 428)"
-                fill="currentColor"
+              <CancelIcon
+                className={`z-0 cursor-pointer absolute right-0 top-0 ${
+                  isHovered ? "" : "hidden"
+                }`}
+                onClick={handleRemoveSelectedFile}
               />
-            </svg>
-          </span>
-          <span className="mt-4 font-bold text-gray-900">
-            Drag file here to upload.
-          </span>
-          <span className=" text-gray-500">
-            Alternatively, you can select a file by <br />
-            <strong className="text-orange-600 font-bold">clicking here</strong>
-          </span>
-        </Button>
+              <Box className="flex flex-col items-center">
+                <FilePresentIcon className="text-orange-600 size-16" />
+                <Typography fontSize="sm">
+                  <strong>Selected file:</strong> {selectedFile.name}
+                </Typography>
+                <Typography fontSize="sm">
+                  <strong>File size:</strong>{" "}
+                  {(selectedFile.size / (1024 * 1024)).toFixed(5)} MB
+                </Typography>
+                <Typography fontSize="sm">
+                  <strong>File mimetype:</strong> {selectedFile.type}
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            <Button
+              component="label"
+              className="w-full h-full cursor-pointer normal-case bg-transparent flex flex-col items-center"
+            >
+              <Input
+                type="file"
+                id="file-upload"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <UploadFileIcon fontSize="large" className="text-orange-600" />
+              <Typography className="mt-4 font-bold text-gray-900">
+                Drag file here to upload.
+              </Typography>
+              <Typography className=" text-gray-500 text-center">
+                Alternatively, you can select a file by <br />
+                <strong className="text-orange-600 font-bold cursor-pointer">
+                  Clicking here
+                </strong>
+              </Typography>
+            </Button>
+          )}
+        </Box>
       </Box>
       <Box className="px-6 pb-4 flex justify-between">
-        <span className="text-sm text-gray-400 italic">
+        <Typography className="text-sm text-gray-400 italic">
           Supported format: CSV
-        </span>
-        <span className="text-sm text-gray-400 italic">Maximum size: 1MB</span>
+        </Typography>
+        <Typography className="text-sm text-gray-400 italic">
+          Maximum size: 1MB
+        </Typography>
       </Box>
       <Box className="flex items-center justify-end px-4 py-3 border-t border-gray-200">
         <Button
-          type="button"
-          className="bg-orange-500 text-white capitalize font-medium px-4 py-2 rounded-lg hover:bg-orange-700 focus:outline-none ml-2"
+          type="submit"
+          className={`capitalize font-medium px-4 py-2 rounded-lg ml-2
+            ${!selectedFile ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-700 text-white hover:cursor-pointer"}
+          `}
+          onClick={handleProcessSelectedFile}
+          disabled={!selectedFile}
         >
           Process
         </Button>
