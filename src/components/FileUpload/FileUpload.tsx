@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useState } from "react";
+import React, { ChangeEvent, useCallback, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -9,17 +9,21 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useAuth } from "@contexts/useAuthContext";
 import api from "@config/axios-request";
 import { toast } from "react-toastify";
+import { useScrapping } from "@contexts/useScrappingContext";
 
 export default function FileUpload() {
   const { accessToken } = useAuth();
+  const { setProcessingKeywords, setIsScrapping } = useScrapping();
   const [selectedFile, setSelectedFile] = useState<File>(null);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const fileInputRef = useRef(null);
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
   const handleFileChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
+      event.preventDefault();
       if (
         (event.target as HTMLInputElement).files &&
         (event.target as HTMLInputElement).files.length
@@ -54,6 +58,8 @@ export default function FileUpload() {
 
       if (pendingKeywords.length) {
         toast.info(`Processing ${pendingKeywords.length} keyword(s)`);
+        setIsScrapping(true);
+        setProcessingKeywords(pendingKeywords);
       }
     } catch (error) {
       toast.error(
@@ -129,22 +135,19 @@ export default function FileUpload() {
           ) : (
             <Button
               component="label"
-              className="w-full h-full cursor-pointer normal-case bg-transparent flex flex-col items-center"
+              className="z-0 w-full h-full cursor-pointer normal-case bg-transparent flex flex-col items-center"
             >
               <Input
                 type="file"
                 id="file-upload"
                 style={{ display: "none" }}
                 onChange={handleFileChange}
+                ref={fileInputRef}
               />
               <UploadFileIcon fontSize="large" className="text-orange-600" />
               <Typography className="mt-4 font-bold text-gray-900">
-                Drag file here to upload.
-              </Typography>
-              <Typography className=" text-gray-500 text-center">
-                Alternatively, you can select a file by <br />
                 <strong className="text-orange-600 font-bold cursor-pointer">
-                  Clicking here
+                  Clicking here to upload file
                 </strong>
               </Typography>
             </Button>

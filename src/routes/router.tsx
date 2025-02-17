@@ -4,6 +4,7 @@ import SignUp from "@pages/SignUpPage/SignUpPage";
 import UploadPage from "@pages/UploadPage/UploadPage";
 import NotFoundPage from "@pages/NotFoundPage/NotFoundPage";
 import MainLayout from "@components/Layout/MainLayout";
+import { ScrappingProvider } from "@contexts/useScrappingContext";
 import HistoryPage from "@pages/HistoryPage/HistoryPage";
 import AuthGuard from "./guard/auth.guard";
 
@@ -26,7 +27,11 @@ export const appRouter = createBrowserRouter([
   },
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <ScrappingProvider>
+        <MainLayout />
+      </ScrappingProvider>
+    ),
     children: [
       {
         path: "/",
