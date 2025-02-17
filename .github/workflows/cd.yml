@@ -1,0 +1,32 @@
+name: Manual CD Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Github registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/scrapping-web:prod .
+
+      # - name: Push Docker image to GitHub Container Registry
+      #   run: |
+      #     docker push ghcr.io/${{ github.repository }}/scrapping-web:prod

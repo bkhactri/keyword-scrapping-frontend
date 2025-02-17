@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  web:
+    image: web:local
+    depends_on:
+      - app
+    restart: always
+    ports:
+      - "3000:80"
+    networks:
+      - webnet
+
+networks:
+  webnet:
