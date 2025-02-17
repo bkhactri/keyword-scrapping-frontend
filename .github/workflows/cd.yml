@@ -27,6 +27,6 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}/scrapping-web:prod .
 
-      # - name: Push Docker image to GitHub Container Registry
-      #   run: |
-      #     docker push ghcr.io/${{ github.repository }}/scrapping-web:prod
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker push ghcr.io/${{ github.repository }}/scrapping-web:prod
