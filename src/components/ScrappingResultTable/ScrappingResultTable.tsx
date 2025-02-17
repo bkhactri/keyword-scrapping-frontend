@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import TableCell from "@mui/material/TableCell";
@@ -8,9 +8,10 @@ import Typography from "@mui/material/Typography";
 import { TableVirtuoso } from "react-virtuoso";
 import { useGlobalState } from "@store/global-state/useGlobalState";
 import { Keyword } from "@interfaces/keyword.interface";
-import { useScrapping } from "@contexts/useScrappingContext";
 import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
 import KeywordDetailModal from "@components/KeywordDetailModal/KeywordDetailModal";
+import { useScrapping } from "@contexts/useScrappingContext";
+import { socketIO } from "@config/socket";
 import VirtuosoTable from "./VirtuosoTable";
 
 interface ResultTableProps {
@@ -47,10 +48,10 @@ const columns: ScrappingColumnData[] = [
 ];
 
 export default function ResultTable({ searchKeyword }: ResultTableProps) {
+  const { setIsScrapping, processingKeywords, setProcessingKeywords } =
+    useScrapping();
   const [isOpenDetailModal, setOpenDetailModal] = useState<boolean>(false);
   const [selectedKeywordId, setSelectedKeywordId] = useState<number>();
-  const { socket, processingKeywords, setProcessingKeywords, setIsScrapping } =
-    useScrapping();
   const [rows, setRows] = useState<Keyword[]>([]);
   const location = useLocation();
   const { user } = useGlobalState();
@@ -142,36 +143,41 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
     });
   }, [rows, searchKeyword]);
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      socket?.emit("identify", user.id);
-    });
-
-    socket.on("disconnect", () => {
-      if (location.pathname !== "/upload") {
-        toast.warning("Real time scrapping is not available");
-      }
-    });
-
-    socket?.on("keyword-processed", (data: Keyword) => {
+  const onKeywordProcessedCallback = useCallback(
+    (data: Keyword) => {
       const remainKeywords = processingKeywords.filter((keyword) => {
         return keyword !== data.keyword;
       });
 
-      if (!remainKeywords.length) {
+      if (
+        !remainKeywords.length ||
+        remainKeywords.length === processingKeywords.length
+      ) {
         setIsScrapping(false);
         toast.success("Completed processing all keywords");
       }
 
       setProcessingKeywords(remainKeywords);
       setRows((prevRows) => [data, ...prevRows]);
-    });
+    },
+    [processingKeywords, setIsScrapping, setProcessingKeywords]
+  );
+
+  const onDisconnectSocketCallback = useCallback(() => {
+    if (location.pathname !== "/upload") {
+      toast.warning("Real time scrapping is not available");
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    socketIO.connect(user.id, onDisconnectSocketCallback);
+
+    socketIO.onKeywordProcessed(onKeywordProcessedCallback);
 
     return () => {
-      socket?.disconnect();
+      socketIO.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, socket, user.id]);
+  }, [onDisconnectSocketCallback, onKeywordProcessedCallback, user.id]);
 
   return (
     <Paper style={{ height: "70vh", width: "100%" }}>
