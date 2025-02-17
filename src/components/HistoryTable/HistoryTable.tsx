@@ -14,6 +14,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
 import Typography from "@mui/material/Typography";
 import KeywordDetailModal from "@components/KeywordDetailModal/KeywordDetailModal";
+import { timeDiffInSecondsAndMinutes } from "@helpers/time.helper";
 
 const columns: GridColDef[] = [
   {
@@ -43,22 +44,38 @@ const columns: GridColDef[] = [
     },
   },
   {
-    field: "createdAt",
-    headerName: "Create at",
-    type: "string",
-    width: 300,
-    cellClassName: "text-right",
-    headerAlign: "right",
-    valueGetter: (value: string) => new Date(value).toLocaleString(),
+    field: "totalLinks",
+    headerName: "Total links",
+    type: "number",
+    width: 200,
+    cellClassName: "text-center",
+    headerAlign: "center",
+    valueFormatter: (_, row: Keyword) => {
+      return Number(row.searchResult.totalLinks) || 0;
+    },
   },
   {
-    field: "updatedAt",
-    headerName: "Last processed at",
+    field: "totalAds",
+    headerName: "Total Ads",
+    type: "number",
+    width: 200,
+    cellClassName: "text-center",
+    headerAlign: "center",
+    valueFormatter: (_, row: Keyword) => {
+      return Number(row.searchResult.totalAds) || 0;
+    },
+  },
+  {
+    field: "processedIn",
+    headerName: "Processed in",
     type: "string",
+    width: 200,
     cellClassName: "text-right",
     headerAlign: "right",
-    width: 300,
-    valueGetter: (value: string) => new Date(value).toLocaleString(),
+    valueFormatter: (_, row: Keyword) => {
+      const { createdAt, updatedAt } = row;
+      return timeDiffInSecondsAndMinutes(createdAt, updatedAt);
+    },
   },
 ];
 

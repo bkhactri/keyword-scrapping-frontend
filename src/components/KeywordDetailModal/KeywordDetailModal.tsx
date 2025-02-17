@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
@@ -11,13 +11,16 @@ import { ReportKeyword } from "@interfaces/report.interface";
 import { useAuth } from "@contexts/useAuthContext";
 import KeyIcon from "@mui/icons-material/Key";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
+import EventIcon from "@mui/icons-material/Event";
 import LinkIcon from "@mui/icons-material/Link";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { toast } from "react-toastify";
 import api from "@config/axios-request";
+import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
 
 interface ReportItemProps {
   icon: React.ElementType;
-  value: string | number;
+  value: string | number | ReactNode;
   label: string;
   preview?: boolean;
 }
@@ -38,7 +41,7 @@ const ReportItem = ({ icon: Icon, value, label, preview }: ReportItemProps) => {
   return (
     <Stack
       direction="row"
-      spacing={4}
+      spacing={2}
       sx={{
         flex: 1,
         p: 2,
@@ -69,18 +72,21 @@ const ReportItem = ({ icon: Icon, value, label, preview }: ReportItemProps) => {
               textTransform: "none",
               color: "orange",
               fontWeight: "bold",
-              textAlign: "left",
             }}
           >
-            Preview HTML page cache
+            {label}
           </Button>
         ) : (
-          <Typography variant="h6" fontWeight="bold">
+          <Typography sx={{ fontSize: "16px" }} fontWeight="bold">
             {value}
           </Typography>
         )}
 
-        {!preview && <Typography sx={{ color: "gray" }}>{label}</Typography>}
+        {!preview && (
+          <Typography sx={{ color: "gray", fontSize: "14px" }}>
+            {label}
+          </Typography>
+        )}
       </Stack>
     </Stack>
   );
@@ -138,6 +144,7 @@ export default function KeywordDetailModal({
     >
       <Box
         sx={{
+          minWidth: "800px",
           position: "absolute",
           top: "50%",
           left: "50%",
@@ -180,7 +187,7 @@ export default function KeywordDetailModal({
               sx={{
                 mt: 4,
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 justifyContent: "space-between",
                 gap: 2,
               }}
@@ -190,16 +197,60 @@ export default function KeywordDetailModal({
                 value={reportKeyword?.keyword}
                 label="Keyword"
               />
+
               <ReportItem
-                icon={NewspaperIcon}
-                value={reportKeyword?.totalAds}
-                label="Total advertisements"
+                icon={TaskAltIcon}
+                value={
+                  <Typography
+                    className="h-full flex justify-center items-center"
+                    sx={{ textTransform: "capitalize", fontWeight: "bold" }}
+                    color={
+                      keywordStatusColor[reportKeyword?.status as KeywordStatus]
+                    }
+                  >
+                    {reportKeyword?.status}
+                  </Typography>
+                }
+                label="Status"
               />
+            </Box>
+            <Box
+              sx={{
+                mt: 2,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
               <ReportItem
                 icon={LinkIcon}
                 value={reportKeyword?.totalLinks}
                 label="Total links"
               />
+
+              <ReportItem
+                icon={NewspaperIcon}
+                value={reportKeyword?.totalAds}
+                label="Total Ads"
+              />
+
+              <ReportItem
+                icon={EventIcon}
+                value={new Date(reportKeyword?.createdAt).toLocaleDateString()}
+                label="Uploaded date"
+              />
+            </Box>
+
+            <Box
+              sx={{
+                mt: 2,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
               <ReportItem
                 icon={CodeIcon}
                 value={reportKeyword?.htmlCachePage}

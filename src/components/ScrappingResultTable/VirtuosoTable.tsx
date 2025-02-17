@@ -32,7 +32,7 @@ const VirtuosoTable: TableComponents<Keyword> = {
     return (
       <tbody>
         <tr>
-          <td colSpan={4} style={{ textAlign: "center" }}>
+          <td colSpan={5} style={{ textAlign: "center" }}>
             <Box className="h-[45vh] flex flex-col justify-center items-center">
               <SmartToyIcon className="text-orange-400 size-20" />
               <Typography className="text-orange-400">
