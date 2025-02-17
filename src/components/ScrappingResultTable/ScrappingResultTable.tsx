@@ -35,12 +35,12 @@ const columns: ScrappingColumnData[] = [
   },
   {
     width: 50,
-    label: "Created At",
+    label: "Created at",
     dataKey: "createdAt",
   },
   {
     width: 50,
-    label: "Completed At",
+    label: "Last processed at",
     dataKey: "updatedAt",
   },
 ];
@@ -64,7 +64,7 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
         );
       case "createdAt":
       case "updatedAt":
-        return <>{new Date(row[dataKey as string]).toString()}</>;
+        return <>{new Date(row[dataKey as string]).toLocaleString()}</>;
       default:
         return row[dataKey as string];
     }
@@ -142,7 +142,7 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
   }, [location.pathname, socket, user.id]);
 
   return (
-    <Paper style={{ height: "65vh", width: "100%" }}>
+    <Paper style={{ height: "70vh", width: "100%" }}>
       <TableVirtuoso
         data={filteredRows}
         components={VirtuosoTable}

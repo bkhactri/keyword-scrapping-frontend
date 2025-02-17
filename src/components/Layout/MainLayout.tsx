@@ -38,9 +38,7 @@ export default function MainLayout() {
           </NavLink>
         </Toolbar>
       </AppBar>
-      <Box sx={{ p: 3 }}>
-        <Outlet />
-      </Box>
+      <Outlet />
     </Box>
   );
 }
