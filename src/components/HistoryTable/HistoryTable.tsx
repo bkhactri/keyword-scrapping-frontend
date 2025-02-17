@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
 import Typography from "@mui/material/Typography";
+import KeywordDetailModal from "@components/KeywordDetailModal/KeywordDetailModal";
 
 const columns: GridColDef[] = [
   {
@@ -71,6 +72,8 @@ export default function HistoryTable() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [totalRows, setTotalRows] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isOpenDetailModal, setOpenDetailModal] = useState<boolean>(false);
+  const [selectedKeywordId, setSelectedKeywordId] = useState<number>();
 
   const fetchKeywords = useCallback(
     async (paginateReq?: Pagination, filter?: Filter) => {
@@ -131,6 +134,21 @@ export default function HistoryTable() {
     fetchKeywords(pagination, { search: searchTerm });
   }, 400);
 
+  const handleRowClick = ({ row }: { row: Keyword }) => {
+    if (row.status !== KeywordStatus.Completed) {
+      toast.warning("Keyword processing not completed");
+      return;
+    }
+
+    setOpenDetailModal(true);
+    setSelectedKeywordId(row.id);
+  };
+
+  const handleCloseModal = () => {
+    setOpenDetailModal(false);
+    setSelectedKeywordId(null);
+  };
+
   return (
     <Stack className="flex flex-col h-[80vh] w-full">
       <Box className="flex flex-row gap-2">
@@ -160,6 +178,7 @@ export default function HistoryTable() {
         loading={isLoading}
         paginationModel={pagination}
         onPaginationModelChange={handlePaginationChanged}
+        onRowClick={handleRowClick}
         className="mt-3"
         sx={{
           ".MuiDataGrid-overlayWrapperInner": {
@@ -177,6 +196,12 @@ export default function HistoryTable() {
             cursor: "default",
           },
         }}
+      />
+
+      <KeywordDetailModal
+        isOpen={isOpenDetailModal}
+        keywordId={selectedKeywordId}
+        handleClose={handleCloseModal}
       />
     </Stack>
   );

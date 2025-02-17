@@ -9,7 +9,8 @@ import { TableVirtuoso } from "react-virtuoso";
 import { useGlobalState } from "@store/global-state/useGlobalState";
 import { Keyword } from "@interfaces/keyword.interface";
 import { useScrapping } from "@contexts/useScrappingContext";
-import { keywordStatusColor } from "@enums/keyword.enum";
+import { KeywordStatus, keywordStatusColor } from "@enums/keyword.enum";
+import KeywordDetailModal from "@components/KeywordDetailModal/KeywordDetailModal";
 import VirtuosoTable from "./VirtuosoTable";
 
 interface ResultTableProps {
@@ -46,6 +47,8 @@ const columns: ScrappingColumnData[] = [
 ];
 
 export default function ResultTable({ searchKeyword }: ResultTableProps) {
+  const [isOpenDetailModal, setOpenDetailModal] = useState<boolean>(false);
+  const [selectedKeywordId, setSelectedKeywordId] = useState<number>();
   const { socket } = useScrapping();
   const [rows, setRows] = useState<Keyword[]>([]);
   const location = useLocation();
@@ -70,13 +73,22 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
     }
   };
 
-  const rowContent = (_index: number, row: Keyword) => {
+  const rowContent = (
+    _index: number,
+    row: Keyword,
+    callbackClick: (row: Keyword) => void
+  ) => {
+    const handleOnClick = () => {
+      callbackClick(row);
+    };
+
     return (
       <>
         {columns.map((column) => (
           <TableCell
+            onClick={handleOnClick}
             key={column.dataKey}
-            style={{ width: column.width }}
+            style={{ width: column.width, cursor: "pointer" }}
             variant="body"
           >
             {getRowContentFormat(row, column.dataKey)}
@@ -101,6 +113,21 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
         ))}
       </TableRow>
     );
+  };
+
+  const handleRowClick = (row: Keyword) => {
+    if (row.status !== KeywordStatus.Completed) {
+      toast.warning("Keyword processing not completed");
+      return;
+    }
+
+    setOpenDetailModal(true);
+    setSelectedKeywordId(row.id);
+  };
+
+  const handleCloseModal = () => {
+    setOpenDetailModal(false);
+    setSelectedKeywordId(null);
   };
 
   const filteredRows = React.useMemo(() => {
@@ -147,7 +174,13 @@ export default function ResultTable({ searchKeyword }: ResultTableProps) {
         data={filteredRows}
         components={VirtuosoTable}
         fixedHeaderContent={fixedHeaderContent}
-        itemContent={rowContent}
+        itemContent={(index, row) => rowContent(index, row, handleRowClick)}
+      />
+
+      <KeywordDetailModal
+        isOpen={isOpenDetailModal}
+        keywordId={selectedKeywordId}
+        handleClose={handleCloseModal}
       />
     </Paper>
   );
