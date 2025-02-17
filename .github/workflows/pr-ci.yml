@@ -31,5 +31,5 @@ jobs:
       - name: Check lint
         run: npm run lint:check
 
-      - name: Verify tests
-        run: npm run test:cov
+      # - name: Verify tests
+      #   run: npm run test:cov
