@@ -1,6 +1,6 @@
-# keyword-scrapping-backend
+# keyword-scrapping-frontend
 
-Google keyword scrapping backend
+Google keyword scrapping frontend
 
 ## Installation
 

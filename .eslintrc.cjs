@@ -18,19 +18,19 @@ module.exports = {
     project: ["./tsconfig.json", "./tsconfig.node.json"],
   },
   rules: {
+    "arrow-body-style": "off",
     "react/jsx-filename-extension": [
       1,
       { extensions: [".js", ".jsx", ".tsx"] },
     ],
     "react/react-in-jsx-scope": 0,
-    "react-refresh/only-export-components": [
-      "warn",
-      { allowConstantExport: true },
-    ],
+    "react-refresh/only-export-components": ["off"],
     "react/prop-types": "off",
     "require-await": "error",
     "import/no-extraneous-dependencies": "off",
     "react/require-default-props": "off",
+    "react/function-component-definition": "off",
+    "react/jsx-props-no-spreading": "off",
     "import/prefer-default-export": "off",
     "import/extensions": 0,
   },
