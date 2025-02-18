@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   web:
-    image: ghcr.io/nimble-technical-challenge/frontend/scrapping-web:prod
+    image: ghcr.io/keyword-scrapping-frontend/scrapping-web:prod
     depends_on:
       - app
     restart: always
